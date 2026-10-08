@@ -1,0 +1,9 @@
+.worktrees/
+node_modules/
+dist/
+.compositor/
+*.log
+.DS_Store
+__pycache__/
+.venv/
+.claude/JOURNAL.md

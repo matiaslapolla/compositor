@@ -1,0 +1,15 @@
+# One word per concept (ASD-STE100 rule), per narration language (the house
+# voice's). Key = the approved term, value = synonyms the narration must not
+# use. Grow it as episodes add concepts.
+[es]
+"pérdida" = ["costo", "coste"]
+"descenso por gradiente" = ["gradient descent", "descenso de gradiente"]
+"tasa de aprendizaje" = ["learning rate", "ritmo de aprendizaje"]
+"conjunto de entrenamiento" = ["training set", "set de entrenamiento"]
+"época" = ["epoch", "epochs"]
+"residuo" = ["residual"]
+
+[en]
+"loss" = ["cost"]
+"learning rate" = ["step size"]
+"residual" = ["error term"]

@@ -1,0 +1,9 @@
+{
+  "title": "Rename a project",
+  "locale": "en",
+  "steps": [
+    { "id": "open-menu", "action": "click", "selector": "#menu-button", "narration": "Click Projects to open the project menu.", "caption": "Open the Projects menu" },
+    { "id": "pick-rename", "action": "click", "selector": "[data-item=rename]", "narration": "Choose Rename. The name field becomes editable.", "caption": "Choose Rename" },
+    { "id": "type-name", "action": "type", "selector": "#project-name", "text": "Launch plan", "narration": "Type the new name, Launch plan.", "caption": "Type the new name", "zoom": "auto" }
+  ]
+}

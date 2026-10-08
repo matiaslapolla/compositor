@@ -1,0 +1,9 @@
+{
+  "title": "Broken plan",
+  "locale": "en",
+  "steps": [
+    { "id": "open-menu", "action": "click", "narration": "Click Menu to open it.", "caption": "Open the menu" },
+    { "id": "go", "action": "navigate", "narration": "Open settings.", "caption": "Settings" },
+    { "id": "go", "action": "teleport", "selector": "#x", "narration": "", "caption": "x", "zoom": 0.5 }
+  ]
+}

@@ -1,0 +1,23 @@
+@theme {
+  --color-*: initial;
+  --color-canvas: oklch(0.982 0.002 240);
+  --color-panel: oklch(1 0 0);
+  --color-ink: oklch(0.2 0.004 240);
+  --color-muted: oklch(0.48 0.006 240);
+  --color-line: oklch(0.91 0.003 240);
+  --color-accent: oklch(0.609 0.098 199);
+  --color-on-ink: oklch(1 0 0);
+  --color-warn: oklch(0.8 0.15 85);
+  --color-danger: oklch(0.5 0.2 5);
+  --font-sans: "Figures", "Text Face", system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-canvas: oklch(0.165 0.003 240);
+    --color-ink: oklch(0.95 0.002 240);
+    --color-accent: oklch(0.692 0.112 199);
+  }
+}
+@font-face { font-family: "Figures"; src: url("../fonts/figures.woff2") format("woff2-variations"); font-weight: 100 900; unicode-range: U+0030-0039; }
+@font-face { font-family: "Text Face"; src: url("../fonts/text.woff2") format("woff2-variations"); font-weight: 200 900; }

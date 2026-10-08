@@ -1,0 +1,21 @@
+{
+  "name": "promo/landscape",
+  "description": "Narrated or captioned 16:9 product film: one claim per scene, cut-the-curve seams along the current, staged reveals on narration beats, captions in the bottom safe band, static end card.",
+  "mode": "promo",
+  "kind": "motion",
+  "duration": 20,
+  "fps": 30,
+  "loop": "hold",
+  "canvas": "dark",
+  "targets": ["yt-landscape", "linkedin-video", "x-video", "landscape"],
+  "params": {
+    "scenes": { "type": "array", "required": true, "doc": "[{ id, kind: title|claim|feature|capture|stat|quote|end, headline?, body?, image?, stat?, label?, items?, start, end, voStart, voDuration }] from scripts/promo/plan.mjs. *word* in a headline marks the accent highlight." },
+    "timeline": { "type": "object", "required": true, "doc": "timeline.json from scripts/promo/voiceover.mjs." },
+    "captions": { "type": "array", "required": true, "doc": "Caption cues [{ start, end, lines, words }]." },
+    "duration": { "type": "number", "required": true, "doc": "Seconds; the timeline's duration." },
+    "captionStyle": { "type": "string", "enum": ["plain", "karaoke"], "default": "plain", "doc": "karaoke lifts each word to fg as it is spoken." },
+    "voSrc": { "type": "string", "doc": "Preview audio, assets/vo/mix.wav; null when caption-only." },
+    "ledger": { "type": "object", "doc": "Seam ledger; build.mjs writes it beside index.html for scripts/gates/seams.mjs." },
+    "language": { "type": "string", "default": "en" }
+  }
+}

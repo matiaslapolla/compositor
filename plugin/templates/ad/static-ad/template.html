@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{headline}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  /* Sized from the injected canvas so layout measured before the runtime stamps the root is already right. */
+  html, body { margin: 0; padding: 0; width: var(--w); height: var(--h); }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg);
+    --m: min(var(--w), var(--h)); --gap: calc(var(--m) * 0.045); --r: calc(var(--radius) * 2); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+
+  /* One grid, four arrangements: orientation × (capture | type only). Text, logo and CTA stay in the safe box;
+     a capture starts inside it and runs off the right and bottom frame edges, so its crop reads as intended. */
+  .safe { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "logo" "." "copy" "." "action"; grid-template-rows: auto 1fr auto 1fr auto; }
+  html.has-image .safe { grid-template-areas: "logo" "copy" "action" "shot"; grid-template-rows: auto auto auto minmax(0, 1fr); }
+  html[data-orientation="landscape"] .safe { grid-template-areas: "logo" "copy" "action"; grid-template-rows: auto 1fr auto; }
+  html[data-orientation="landscape"].has-image .safe { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: calc(var(--gap) * 1.2);
+    grid-template-areas: "logo shot" "copy shot" "action shot"; grid-template-rows: auto 1fr auto; }
+
+  .logo { grid-area: logo; display: flex; align-items: center; width: calc(var(--w) * 0.05); min-width: 40px; }
+  /* A brand without a mark shows its name: the corner slot then sizes to the name. */
+  .logo:has(.name) { width: auto; }
+  .logo svg, .logo img { display: block; width: 100%; height: auto; }
+  .logo .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); white-space: nowrap;
+    font-size: max(24px, calc(var(--m) * 0.03)); }
+
+  .copy { grid-area: copy; display: grid; gap: calc(var(--gap) * 0.5); align-content: center; }
+  .headline { margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.02;
+    text-wrap: balance; max-width: 88%; font-size: calc(var(--m) * 0.105); }
+  html[data-orientation="landscape"] .headline { font-size: calc(var(--m) * 0.115); max-width: 82%; }
+  html.has-image .headline { font-size: calc(var(--m) * 0.092); max-width: 94%; }
+  html[data-orientation="landscape"].has-image .headline { font-size: calc(var(--m) * 0.1); max-width: 100%; }
+  .subline { margin: 0; max-width: 40ch; color: var(--color-muted); line-height: 1.35; text-wrap: balance;
+    font-size: max(24px, calc(var(--m) * 0.034)); }
+
+  html[data-orientation="landscape"] .subline { font-size: max(24px, calc(var(--m) * 0.044)); }
+  html[data-orientation="landscape"] .cta { font-size: max(24px, calc(var(--m) * 0.042)); }
+  .shot { grid-area: shot; min-height: 0; overflow: hidden; background: var(--color-surface);
+    margin: calc(var(--gap) * 0.5) calc(-1 * var(--safe-right)) calc(-1 * var(--safe-bottom)) 0;
+    border: max(1px, calc(var(--m) * 0.0012)) solid var(--color-border); border-right: 0; border-bottom: 0; border-top-left-radius: var(--r); }
+  html[data-orientation="landscape"] .shot { margin-top: 0; }
+  .shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: {{imageFocus}}; }
+
+  .action { grid-area: action; display: flex; align-items: center; justify-content: space-between; gap: var(--gap); }
+  html.has-image .action { justify-content: flex-start; column-gap: calc(var(--gap) * 0.8); }
+  .cta { display: inline-flex; align-items: center; gap: 0.45em; font-family: var(--font-display); font-weight: 600; line-height: 1;
+    font-size: max(24px, calc(var(--m) * 0.034)); color: var(--color-accent-fg); background: var(--color-accent);
+    padding: 0.62em 1.05em; border-radius: var(--radius-pill); white-space: nowrap; }
+  .cta svg { width: 0.9em; height: 0.9em; }
+  .url { font-family: var(--font-body); color: var(--color-muted); white-space: nowrap; font-size: max(24px, calc(var(--m) * 0.026)); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1350" data-duration="1">
+  <div class="grain" data-layout-ignore></div>
+  <div class="safe" id="frame">
+    <div class="logo" id="logo">
+      {{#logo.markSvg}}{{{logo.markSvg}}}{{/logo.markSvg}}
+      {{^logo.markSvg}}{{#logo.mark}}<img src="{{logo.mark}}" alt="{{brand.name}}">{{/logo.mark}}{{^logo.mark}}<span class="name">{{brand.name}}</span>{{/logo.mark}}{{/logo.markSvg}}
+    </div>
+    <div class="copy" id="copy">
+      <h1 class="headline" id="headline">{{headline}}</h1>
+      {{#subline}}<p class="subline" id="subline">{{subline}}</p>{{/subline}}
+    </div>
+    {{#image}}<figure class="shot" id="shot" data-zoom="{{imageZoom}}" data-focus="{{imageFocus}}"><img src="{{image}}" alt=""></figure>{{/image}}
+    <div class="action" id="action">
+      <span class="cta" id="cta">{{cta}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      {{#url}}<span class="url" id="url">{{url}}</span>{{/url}}
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const html = document.documentElement;
+  const root = document.getElementById("root");
+  const shot = document.getElementById("shot");
+  const headline = document.getElementById("headline");
+  html.dataset.orientation = getComputedStyle(root).getPropertyValue("--orientation").trim() || "square";
+  html.classList.toggle("has-image", Boolean(shot));
+  // Zoom crops the capture inside its own box (object-view-box), so its type stays legible at feed size
+  // without the image overflowing the frame; the focus point anchors the crop. A landscape column is
+  // already a tight cover crop of a wide capture, so the zoom applies to portrait and square only.
+  if (shot) {
+    const z = html.dataset.orientation === "landscape" ? 1 : Math.max(1, Number(shot.dataset.zoom) || 1), c = (1 - 1 / z) * 100;
+    const KEY = { left: 0, top: 0, center: 50, right: 100, bottom: 100 };
+    const [fx, fy] = (shot.dataset.focus || "0% 0%").trim().split(/\s+/).concat("50%").slice(0, 2).map((t) => (t in KEY ? KEY[t] : parseFloat(t) || 0) / 100);
+    shot.querySelector("img").style.objectViewBox = `inset(${c * fy}% ${c * (1 - fx)}% ${c * (1 - fy)}% ${c * fx}%)`;
+  }
+
+  const lines = (el) => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()].filter((b) => b.width > 1); };
+  const area = (rects) => rects.reduce((s, b) => s + b.width * b.height, 0);
+  // Text area: the line boxes of every piece of copy plus the CTA pill, as a share of the frame.
+  const textShare = () => {
+    const parts = [headline, document.getElementById("subline"), document.getElementById("url"), document.querySelector(".logo .name")].filter(Boolean);
+    const pill = document.getElementById("cta").getBoundingClientRect();
+    return (parts.reduce((s, el) => s + area(lines(el)), 0) + pill.width * pill.height) / (root.clientWidth * root.clientHeight);
+  };
+  // The headline takes the largest size that keeps it to two lines (three past four words) inside 86% of its column,
+  // the copy under 20% of the frame, and a capture at least 30% of the frame tall.
+  function fit() {
+    const base = parseFloat(getComputedStyle(headline).fontSize);
+    const column = headline.parentElement.clientWidth;
+    const floor = Math.max(24, base * 0.6);
+    const maxRows = headline.textContent.trim().split(/\s+/).length > 4 ? 3 : 2;
+    for (let size = base * 1.6; size >= floor; size *= 0.97) {
+      headline.style.fontSize = `${size}px`;
+      const ls = lines(headline);
+      const widest = Math.max(...ls.map((b) => b.width));
+      const rows = new Set(ls.map((b) => Math.round(b.top))).size;
+      const shotOk = !shot || html.dataset.orientation === "landscape" || shot.clientHeight >= root.clientHeight * 0.3;
+      if (rows <= maxRows && widest <= column * 0.86 && headline.scrollWidth <= column && textShare() <= 0.2 && shotOk) break;
+    }
+    html.dataset.textShare = textShare().toFixed(3);
+  }
+  // A still: the fitted static HTML is the frame, the timeline stays empty.
+  Promise.all([...document.fonts].map((f) => f.load().catch(() => null))).then(() => {
+    fit();
+    window.__timelines["main"] = gsap.timeline({ paused: true });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# How the narrator says a written word, per language of the house voice.
+# Single words, case-insensitive; punctuation around the word is kept. Only
+# the audio changes, never the screen text or subtitles. Audition in
+# `python -m explainer.voices` or `run.sh say "..."`.
+[es]
+softmax = "sóftmax"
+embedding = "embéding"
+embeddings = "embédings"
+transformer = "transfórmer"
+transformers = "transfórmers"
+token = "tóquen"
+tokens = "tóquens"
+batch = "bach"
+dataset = "déitaset"
+overfitting = "overfíting"
+gpu = "je pe u"
+python = "páiton"
+pytorch = "páitorch"
+numpy = "nampái"
+
+[en]
+mse = "M S E"
+numpy = "num pie"

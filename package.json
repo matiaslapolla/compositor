@@ -1,0 +1,11 @@
+{
+  "name": "compositor",
+  "private": true,
+  "description": "Media-generation harness for Claude Code. The plugin lives in plugin/.",
+  "license": "MIT",
+  "scripts": {
+    "test": "cd plugin && node --test 'tests/**/*.test.mjs'",
+    "lint": "node --check plugin/scripts/doctor.mjs && for f in plugin/scripts/*/*.mjs plugin/scripts/*/*/*.mjs; do node --check \"$f\" || exit 1; done && bash -n plugin/scripts/explain/run.sh && claude plugin validate plugin --strict",
+    "validate": "claude plugin validate plugin --strict"
+  }
+}

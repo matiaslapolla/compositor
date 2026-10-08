@@ -1,0 +1,14 @@
+{
+  "name": "compositor-local",
+  "description": "Local marketplace for the compositor media-generation harness.",
+  "owner": {
+    "name": "Matias Lapolla"
+  },
+  "plugins": [
+    {
+      "name": "compositor",
+      "source": "./plugin",
+      "description": "Media-generation harness: brand tokens in, social, ads, promos, math explainers, in-app guides and logo packages out, rendered locally."
+    }
+  ]
+}

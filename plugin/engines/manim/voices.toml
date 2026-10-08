@@ -1,0 +1,109 @@
+# Candidates for the house voice, compared in `python -m explainer.voices`.
+# All local and free. Piper: one model per voice (~20–115 MB each).
+# Kokoro: one shared model (~350 MB) holds every Kokoro voice.
+
+[paragraph]
+es = """
+El descenso por gradiente ajusta los pesos del modelo paso a paso. En cada paso, calcula hacia dónde sube la pérdida y se mueve en la dirección contraria. Si la tasa de aprendizaje es muy grande, el modelo salta de un lado al otro. Si es muy chica, aprende demasiado lento. ¿Cómo elegimos un buen valor?
+"""
+en = """
+Gradient descent adjusts the model weights one step at a time. At each step, it computes where the loss goes up and moves the other way. If the learning rate is too large, the model jumps from side to side. If it is too small, it learns far too slowly. So how do we pick a good value?
+"""
+
+# --- Spanish ---------------------------------------------------------------
+[[voice]]
+engine = "piper"
+voice = "es_AR-daniela-high"
+lang = "es"
+note = "Argentina"
+
+[[voice]]
+engine = "kokoro"
+voice = "ef_dora"
+lang = "es"
+note = "Kokoro, female"
+
+[[voice]]
+engine = "kokoro"
+voice = "em_alex"
+lang = "es"
+note = "Kokoro, male"
+
+[[voice]]
+engine = "piper"
+voice = "es_MX-claude-high"
+lang = "es"
+note = "Mexico, female"
+
+[[voice]]
+engine = "piper"
+voice = "es_MX-ald-medium"
+lang = "es"
+note = "Mexico, male"
+
+[[voice]]
+engine = "piper"
+voice = "es_ES-davefx-medium"
+lang = "es"
+note = "Spain, male"
+
+[[voice]]
+engine = "piper"
+voice = "es_ES-sharvard-medium"
+lang = "es"
+note = "Spain"
+
+# --- English ---------------------------------------------------------------
+[[voice]]
+engine = "kokoro"
+voice = "af_heart"
+lang = "en"
+note = "Kokoro US female, its best-rated voice"
+
+[[voice]]
+engine = "kokoro"
+voice = "af_bella"
+lang = "en"
+note = "Kokoro US female"
+
+[[voice]]
+engine = "kokoro"
+voice = "am_michael"
+lang = "en"
+note = "Kokoro US male"
+
+[[voice]]
+engine = "kokoro"
+voice = "am_fenrir"
+lang = "en"
+note = "Kokoro US male"
+
+[[voice]]
+engine = "kokoro"
+voice = "bf_emma"
+lang = "en-gb"
+note = "Kokoro UK female"
+
+[[voice]]
+engine = "kokoro"
+voice = "bm_george"
+lang = "en-gb"
+note = "Kokoro UK male"
+
+[[voice]]
+engine = "piper"
+voice = "en_US-lessac-high"
+lang = "en"
+note = "US female"
+
+[[voice]]
+engine = "piper"
+voice = "en_US-ryan-high"
+lang = "en"
+note = "US male"
+
+[[voice]]
+engine = "piper"
+voice = "en_GB-cori-high"
+lang = "en-gb"
+note = "UK female"

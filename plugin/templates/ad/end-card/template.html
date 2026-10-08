@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{cta}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: var(--w); height: var(--h); }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg);
+    --m: min(var(--w), var(--h)); }
+  html[data-orientation="landscape"] #root { --m: calc(min(var(--w), var(--h)) * 1.18); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .safe { display: grid; grid-template-rows: 1fr auto; justify-items: center; }
+  .stack { align-self: center; display: grid; justify-items: center; gap: calc(var(--m) * 0.055); text-align: center; }
+  .lockup { display: flex; align-items: center; gap: calc(var(--m) * 0.03); }
+  .lockup .mark { display: block; height: calc(var(--m) * 0.12); width: auto; }
+  .lockup .mark svg, .lockup .mark img { display: block; height: 100%; width: auto; }
+  .lockup .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1; white-space: nowrap;
+    font-size: calc(var(--m) * 0.1); }
+  .headline { margin: 0; max-width: 18ch; font-family: var(--font-display); font-weight: 600; letter-spacing: var(--tracking-display); line-height: 1.1;
+    text-wrap: balance; color: var(--color-fg); font-size: calc(var(--m) * 0.056); }
+  .action { display: flex; align-items: center; gap: calc(var(--m) * 0.035); }
+  .cta { display: inline-flex; align-items: center; gap: 0.45em; font-family: var(--font-display); font-weight: 600; line-height: 1; white-space: nowrap;
+    font-size: max(24px, calc(var(--m) * 0.048)); color: var(--color-accent-fg); background: var(--color-accent);
+    padding: 0.62em 1.1em; border-radius: var(--radius-pill); }
+  .cta svg { width: 0.9em; height: 0.9em; }
+  .url { color: var(--color-muted); white-space: nowrap; font-size: max(24px, calc(var(--m) * 0.034)); }
+  .legal { margin: 0; max-width: 70ch; color: var(--color-muted); text-align: center; line-height: 1.35; text-wrap: balance;
+    font-size: max(24px, calc(var(--m) * 0.024)); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="2.5">
+  <div class="grain" data-layout-ignore></div>
+  <div class="safe">
+    <div class="stack">
+      <div class="lockup" id="lockup" data-logo="{{logo}}">
+        {{#logo.markSvg}}<span class="mark" id="mark">{{{logo.markSvg}}}</span>{{/logo.markSvg}}
+        {{^logo.markSvg}}{{#logo.mark}}<span class="mark" id="mark"><img src="{{logo.mark}}" alt=""></span>{{/logo.mark}}{{/logo.markSvg}}
+        <span class="name" id="name">{{brand.name}}</span>
+      </div>
+      {{#headline}}<p class="headline" id="headline">{{headline}}</p>{{/headline}}
+      <div class="action" id="action">
+        <span class="cta" id="cta">{{cta}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        {{#url}}<span class="url" id="url">{{url}}</span>{{/url}}
+      </div>
+    </div>
+    {{#legal}}<p class="legal" id="legal">{{legal}}</p>{{/legal}}
+  </div>
+</div>
+<script>
+(function () {
+  document.documentElement.dataset.orientation = getComputedStyle(document.getElementById("root")).getPropertyValue("--orientation").trim() || "square";
+  const lockup = document.getElementById("lockup");
+  const mark = document.getElementById("mark");
+  if (lockup.dataset.logo === "name" && mark) mark.remove();
+  const $ = (id) => document.getElementById(id);
+  const tl = gsap.timeline({ paused: true });
+  // Frame 0 already shows the whole card: brand, offer and CTA settle from the right (the brand current, LEFT)
+  // on staggered offsets, translation only, so no frame shows the CTA at reduced contrast.
+  // Everything is at rest by 0.5 s and the card holds still to the end.
+  const layers = [lockup, $("headline"), $("action")].filter(Boolean);
+  layers.forEach((el, i) => gsap.set(el, { x: `${4 + i * 2.5}%` }));
+  tl.to(layers, { x: 0, duration: 0.5, ease: "power3.out" }, 0);
+  window.__timelines["main"] = tl;
+})();
+</script>
+</body>
+</html>

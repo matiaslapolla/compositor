@@ -1,0 +1,24 @@
+{
+  "name": "guide/tutorial",
+  "description": "In-app tutorial over captured plates: device frame, oversized cursor on the step paths, click ripples, camera zoom per zoom group, step chip and two-line captions, title card and static end frame. Landscape masters plus a vertical cut that crops the plate around each step's target.",
+  "mode": "guide",
+  "kind": "motion",
+  "duration": 12,
+  "fps": 30,
+  "loop": "none",
+  "targets": ["landscape", "yt-landscape", "reels"],
+  "params": {
+    "title": { "type": "string", "required": true, "maxWords": 6, "doc": "Title card and end frame. Six words at most (research rule 11)." },
+    "steps": { "required": true, "doc": "Merged manifest + timeline steps from scripts/guide/plan.mjs, times on the video clock." },
+    "viewport": { "required": true, "doc": "Capture viewport { width, height } in CSS px." },
+    "scale": { "type": "number", "default": 2, "doc": "Capture deviceScaleFactor; plates are viewport × scale px." },
+    "captions": { "doc": "Caption cues { start, end, lines } on the video clock." },
+    "duration": { "type": "number", "required": true, "doc": "intro + timeline.duration + outro, seconds." },
+    "captionOnly": { "default": false, "doc": "No voice-over: no <audio>, the chip shows only the step number." },
+    "spotlight": { "default": false, "doc": "Dim the UI to 45% around each target while the cursor lands on it." },
+    "audio": { "doc": "Narration mix on the video clock (assets/vo/guide-mix.wav), null when caption-only." },
+    "intro": { "type": "number", "default": 1.5, "doc": "Title card length." },
+    "outro": { "type": "number", "default": 1.5, "doc": "Static end frame length." },
+    "endAt": { "type": "number", "required": true, "doc": "When the end frame is fully on screen." }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compositor/brand.schema.json",
+  "title": "compositor brand.json",
+  "type": "object",
+  "required": ["version", "identity", "color", "type", "motion", "provenance"],
+  "properties": {
+    "version": { "const": 1 },
+    "identity": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "tagline": { "type": ["string", "null"] },
+        "logo": {
+          "type": "object",
+          "properties": {
+            "mark": { "type": ["string", "null"] },
+            "wordmark": { "type": ["string", "null"] },
+            "lockup": { "type": ["string", "null"] },
+            "mono": { "type": "object" },
+            "clearSpace": { "type": "string" },
+            "minSizePx": { "type": "number" }
+          }
+        }
+      }
+    },
+    "color": {
+      "type": "object",
+      "required": ["mode", "roles", "video", "contrast"],
+      "properties": {
+        "mode": { "enum": ["light", "dark", "both"] },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "light": { "$ref": "#/$defs/roleSet" },
+            "dark": { "$ref": "#/$defs/roleSet" }
+          }
+        },
+        "video": { "type": "object", "required": ["canvasDefault", "nearBlack"] },
+        "contrast": { "type": "array" }
+      }
+    },
+    "type": {
+      "type": "object",
+      "required": ["display", "body", "scale"],
+      "properties": {
+        "display": { "$ref": "#/$defs/font" },
+        "body": { "$ref": "#/$defs/font" },
+        "mono": { "$ref": "#/$defs/font" },
+        "scale": { "type": "object", "required": ["ratio", "basePx"] }
+      }
+    },
+    "spacing": { "type": "object" },
+    "radius": { "type": "object" },
+    "shadow": { "type": "object" },
+    "motion": {
+      "type": "object",
+      "required": ["fps", "direction", "register", "durations", "easing", "stagger", "forbidden"]
+    },
+    "imagery": { "type": "object" },
+    "voice": { "type": "object" },
+    "aesthetic": { "type": "object" },
+    "platforms": { "type": "object" },
+    "provenance": { "type": "object" },
+    "conflicts": { "type": "array" },
+    "warnings": { "type": "array" }
+  },
+  "$defs": {
+    "color": {
+      "type": "object",
+      "required": ["oklch", "hex"],
+      "properties": {
+        "oklch": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number" } },
+        "hex": { "type": "string", "pattern": "^#[0-9a-f]{6}$" }
+      }
+    },
+    "roleSet": {
+      "type": "object",
+      "required": ["bg", "surface", "fg", "muted", "border", "accent", "accent-fg", "success", "warning", "error"],
+      "additionalProperties": { "$ref": "#/$defs/color" }
+    },
+    "font": {
+      "type": "object",
+      "required": ["family", "source"],
+      "properties": {
+        "family": { "type": "string", "minLength": 1 },
+        "source": { "type": "object", "required": ["kind"], "properties": { "kind": { "enum": ["google", "local", "css", "hyperframes-bundled", "default"] } } },
+        "files": { "type": "array", "items": { "type": "string" } },
+        "faceCss": { "type": "string" },
+        "weights": { "type": ["array", "null"] },
+        "fallback": { "type": "string" }
+      }
+    }
+  }
+}

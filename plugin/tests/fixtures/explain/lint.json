@@ -1,0 +1,4 @@
+[
+  { "file": "episode.py", "line": 12, "level": "error", "message": "26 words (max 25): 'Una oración'" },
+  { "file": "episode.py", "line": 20, "level": "warn", "message": "'=' reads badly aloud; write it in words" }
+]

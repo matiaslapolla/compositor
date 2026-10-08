@@ -1,0 +1,17 @@
+{
+  "name": "ad/end-card",
+  "description": "Static close: the brand lockup, one CTA pill and an optional legal line. Enters in 0.5 s along the brand current, then holds still. Reusable as the last shot of an ad or promo.",
+  "mode": "ad",
+  "kind": "motion",
+  "duration": 2.5,
+  "fps": 30,
+  "loop": "hold",
+  "targets": ["yt-landscape", "reels-ad", "ig-square", "landscape"],
+  "params": {
+    "cta": { "type": "string", "required": true, "maxWords": 4, "doc": "The one call to action, rendered as the accent pill." },
+    "headline": { "type": "string", "maxWords": 7, "doc": "Optional line above the CTA (the offer). Leave empty for a pure brand close." },
+    "url": { "type": "string", "maxChars": 32, "doc": "Short domain beside the CTA, optional." },
+    "legal": { "type": "string", "maxChars": 140, "doc": "Optional legal or disclaimer line, set small and muted at the bottom of the safe box." },
+    "logo": { "type": "string", "enum": ["lockup", "name"], "default": "lockup", "doc": "lockup = the brand mark beside the brand name; name = the name alone (brands without a mark)." }
+  }
+}

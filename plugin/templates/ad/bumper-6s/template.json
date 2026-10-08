@@ -1,0 +1,19 @@
+{
+  "name": "ad/bumper-6s",
+  "description": "Six-second bumper: one visual idea (a product capture under a short headline), one slow push, then a static end card with the brand lockup and the CTA from 4.0 s to 6.0 s.",
+  "mode": "ad",
+  "kind": "motion",
+  "duration": 6,
+  "fps": 30,
+  "loop": "none",
+  "targets": ["yt-landscape", "reels-ad", "ig-square"],
+  "params": {
+    "headline": { "type": "string", "required": true, "maxWords": 5, "doc": "The one idea, five words at most. On screen from 0.15 s." },
+    "cta": { "type": "string", "required": true, "maxWords": 3, "doc": "The CTA on the end card (accent pill)." },
+    "image": { "type": "string", "doc": "Product capture under assets/ (build --assets). Optional: without it the headline carries the shot." },
+    "imageFocus": { "type": "string", "default": "0% 0%", "doc": "CSS object-position for the capture crop." },
+    "imageZoom": { "type": "number", "default": 1.25, "doc": "Crop zoom into the capture in portrait and square (1 = fitted by cover)." },
+    "url": { "type": "string", "maxChars": 32, "doc": "Short domain beside the CTA on the end card, optional." },
+    "legal": { "type": "string", "maxChars": 140, "doc": "Optional legal line on the end card." }
+  }
+}

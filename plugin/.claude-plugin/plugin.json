@@ -1,0 +1,10 @@
+{
+  "name": "compositor",
+  "version": "0.1.0",
+  "description": "Media-generation harness: resolves a repo's brand tokens and produces social assets, ad creatives, promo videos, 3b1b-style math explainers, in-app guides and logo packages with HyperFrames, Manim and parametric SVG, rendered locally and gated deterministically.",
+  "license": "MIT",
+  "author": {
+    "name": "Matias Lapolla"
+  },
+  "hooks": "./hooks/hooks.json"
+}

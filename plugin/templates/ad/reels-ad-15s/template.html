@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{headline}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: var(--w); height: var(--h); }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg);
+    --gap: calc(var(--w) * 0.045); --r: calc(var(--radius) * 2); --row: calc(var(--w) * 0.05 + var(--gap)); --band: 0px; }
+  html.has-captions #root { --band: calc(var(--w) * 0.05 * 1.2 * 2 + var(--gap)); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .scene { position: absolute; inset: 0; }
+
+  /* Story scene: every text slot sits in the safe box; the capture card starts in it and runs off the right and
+     bottom frame edges (under the platform band only imagery is covered, never copy). */
+  .logo { position: absolute; top: 0; left: 0; width: calc(var(--w) * 0.05); min-width: 40px; }
+  /* A brand without a mark shows its name: the corner slot then sizes to the name. */
+  .logo:has(.name) { width: auto; }
+  .logo svg, .logo img { display: block; width: 100%; height: auto; }
+  .logo .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); white-space: nowrap; font-size: max(24px, calc(var(--w) * 0.032)); }
+  .slot { position: absolute; left: 0; right: 0; display: flex; }
+  .slot.center { top: var(--row); bottom: var(--band); align-items: center; }
+  .slot.top { top: var(--row); }
+  .line { margin: 0; max-width: 100%; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.04; text-wrap: balance; }
+  .hook { font-size: calc(var(--w) * 0.12); transform-origin: left center; }
+  .beat { font-size: calc(var(--w) * 0.085); font-weight: 650; }
+  .proof { font-size: calc(var(--w) * 0.095); transform-origin: left center; }
+  .card { position: absolute; left: var(--safe-left); right: 0; bottom: 0; top: 50%; overflow: hidden; background: var(--color-surface);
+    border: max(1px, calc(var(--w) * 0.0012)) solid var(--color-border); border-right: 0; border-bottom: 0; border-top-left-radius: var(--r); }
+  .card img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: {{imageFocus}}; }
+
+  /* Captions: one plate at the bottom of the safe box, up for the whole caption span so only its text changes
+     (a plate per cue over a light capture would read as a flash). */
+  .captions { pointer-events: none; }
+  .plate { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--band) - var(--gap)); border-radius: var(--r);
+    background: color-mix(in oklab, var(--color-bg) 90%, transparent); }
+  .cue { position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 4%;
+    font-family: var(--font-display); font-weight: 600; line-height: 1.2; font-size: calc(var(--w) * 0.05); color: var(--color-fg); text-wrap: balance; }
+
+  /* Close: static end card, CTA + brand. */
+  #close .safe { display: grid; grid-template-rows: 1fr auto; justify-items: center; }
+  .stack { align-self: center; display: grid; justify-items: center; gap: calc(var(--w) * 0.065); text-align: center; }
+  .lockup { display: flex; align-items: center; gap: calc(var(--w) * 0.03); }
+  .lockup .mark { display: block; height: calc(var(--w) * 0.13); }
+  .lockup .mark-bg { aspect-ratio: 1; background: center / contain no-repeat; }
+  .lockup .mark svg { display: block; height: 100%; width: auto; }
+  .lockup .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1; white-space: nowrap; font-size: calc(var(--w) * 0.11); }
+  .action { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: calc(var(--w) * 0.035); }
+  .cta { display: inline-flex; align-items: center; gap: 0.45em; font-family: var(--font-display); font-weight: 600; line-height: 1; white-space: nowrap;
+    font-size: calc(var(--w) * 0.058); color: var(--color-accent-fg); background: var(--color-accent); padding: 0.62em 1.1em; border-radius: var(--radius-pill); }
+  .cta svg { width: 0.9em; height: 0.9em; }
+  .url { color: var(--color-muted); white-space: nowrap; font-size: calc(var(--w) * 0.04); }
+  .legal { margin: 0; color: var(--color-muted); text-align: center; line-height: 1.35; text-wrap: balance; font-size: max(24px, calc(var(--w) * 0.026)); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="15">
+  <script type="application/json" id="params">{{{json}}}</script>
+  <div class="grain" data-layout-ignore></div>
+  <div class="scene" id="story">
+    <div class="card" id="card"></div>
+    <div class="safe" id="story-safe">
+      <div class="logo" id="logo">
+        {{#logo.markSvg}}{{{logo.markSvg}}}{{/logo.markSvg}}
+        {{^logo.markSvg}}{{#logo.mark}}<img src="{{logo.mark}}" alt="{{brand.name}}">{{/logo.mark}}{{^logo.mark}}<span class="name">{{brand.name}}</span>{{/logo.mark}}{{/logo.markSvg}}
+      </div>
+      <div class="slot center"><h1 class="line hook" id="hook">{{headline}}</h1></div>
+      {{#proof}}<div class="slot center"><p class="line proof" id="proof">{{proof}}</p></div>{{/proof}}
+    </div>
+  </div>
+  <div class="safe captions" id="captions"></div>
+  <div class="scene" id="close">
+    <div class="safe">
+      <div class="stack">
+        <div class="lockup">
+          {{#logo.markSvg}}<span class="mark">{{{logo.markSvg}}}</span>{{/logo.markSvg}}
+          {{^logo.markSvg}}{{#logo.mark}}<span class="mark mark-bg" style="background-image: url('{{logo.mark}}')"></span>{{/logo.mark}}{{/logo.markSvg}}
+          <span class="name">{{brand.name}}</span>
+        </div>
+        <div class="action">
+          <span class="cta" id="cta">{{cta}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          {{#url}}<span class="url">{{url}}</span>{{/url}}
+        </div>
+      </div>
+      {{#legal}}<p class="legal">{{legal}}</p>{{/legal}}
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const P = JSON.parse(document.getElementById("params").textContent);
+  const D = Number(P.duration) || 15;
+  const html = document.documentElement;
+  const root = document.getElementById("root");
+  const safe = document.getElementById("story-safe");
+  const card = document.getElementById("card");
+  const hook = document.getElementById("hook");
+  const proof = document.getElementById("proof");
+  const beats = (Array.isArray(P.beats) ? P.beats : []).filter((b) => b && b.text).slice(0, 3);
+
+  // Schedule. Hook 0-2.6 s; beats share the middle; proof 1.8 s; the end card is at rest from D-2.05 s.
+  const CLOSE = D - 2.6, HOOK_END = 2.6;
+  const PROOF = proof ? CLOSE - 1.8 : CLOSE;
+  const beatLen = (PROOF - HOOK_END) / Math.max(beats.length, 1);
+
+  // Beats: text slot at the top when the beat shows a capture, centred when it does not; captures stack in the card.
+  const els = beats.map((b, i) => {
+    const slot = document.createElement("div");
+    slot.className = `slot ${b.image ? "top" : "center"}`;
+    const p = document.createElement("p");
+    p.className = "line beat";
+    p.id = `beat-${i + 1}`;
+    p.textContent = b.text;
+    slot.appendChild(p);
+    safe.appendChild(slot);
+    let img = null;
+    if (b.image) {
+      img = document.createElement("img");
+      img.id = `capture-${i + 1}`;
+      img.alt = "";
+      img.src = b.image;
+      card.appendChild(img);
+    }
+    return { text: p, img, start: HOOK_END + i * beatLen, zoom: Number(b.zoom) || null, focus: b.focus || null };
+  });
+  if (!els.some((e) => e.img)) card.remove();
+
+  const cues = (Array.isArray(P.captions) ? P.captions : [])
+    .map((c) => ({ start: Number(c.start), end: Math.min(Number(c.end), CLOSE - 0.05), text: String(c.text ?? "") }))
+    .filter((c) => c.text && c.end > c.start);
+  html.classList.toggle("has-captions", cues.length > 0);
+  const plate = document.createElement("div");
+  plate.className = "plate";
+  plate.id = "plate";
+  if (cues.length) document.getElementById("captions").appendChild(plate);
+  const cueEls = cues.map((c, i) => {
+    const p = document.createElement("p");
+    p.className = "cue";
+    p.id = `cue-${i + 1}`;
+    p.textContent = c.text;
+    plate.appendChild(p);
+    return p;
+  });
+
+  const zoom = Math.max(1, Number(P.imageZoom) || 1);
+  const KEY = { left: 0, top: 0, center: 50, right: 100, bottom: 100 };
+  const focusOf = (f) => String(f || "0% 0%").trim().split(/\s+/).concat("50%").slice(0, 2).map((t) => (t in KEY ? KEY[t] : parseFloat(t) || 0) / 100);
+  const viewBox = (z, focus) => {
+    const [fx, fy] = focusOf(focus ?? P.imageFocus), c = (1 - 1 / z) * 100;
+    return `inset(${(c * fy).toFixed(3)}% ${(c * (1 - fx)).toFixed(3)}% ${(c * (1 - fy)).toFixed(3)}% ${(c * fx).toFixed(3)}%)`;
+  };
+
+  const lines = (el) => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()].filter((b) => b.width > 1); };
+  // Largest size from `max` down to `min` that keeps the copy to `rows` lines inside the safe width and `hmax` tall.
+  function fit(el, max, min, rows, hmax) {
+    const w = safe.clientWidth;
+    for (let size = max; size >= min; size *= 0.97) {
+      el.style.fontSize = `${size}px`;
+      const ls = lines(el);
+      if (new Set(ls.map((b) => Math.round(b.top))).size <= rows && el.scrollWidth <= w && el.offsetHeight <= hmax) return;
+    }
+    el.style.fontSize = `${min}px`;
+  }
+
+  function build() {
+    const W = root.clientWidth, H = safe.clientHeight;
+    fit(hook, W * 0.135, W * 0.09, 4, H * 0.62);
+    if (proof) fit(proof, W * 0.105, W * 0.08, 3, H * 0.5);
+    for (const e of els) fit(e.text, W * 0.095, W * 0.08, 3, H * 0.4);
+    // The card starts under the tallest beat text that sits above a capture.
+    if (card.isConnected) {
+      const tallest = Math.max(0, ...els.filter((e) => e.img).map((e) => e.text.offsetHeight));
+      card.style.top = `${safe.offsetTop + safe.querySelector(".slot.top").offsetTop + tallest + W * 0.06}px`;
+    }
+
+    const tl = gsap.timeline({ paused: true });
+    const reveal = { clipPath: "inset(0% 0% 0% 0%)", yPercent: 0, duration: 0.55, ease: "power3.out" };
+    const leave = (el, at) => {
+      tl.to(el, { clipPath: "inset(0% 0% 100% 0%)", yPercent: -14, duration: 0.35, ease: "power3.in" }, at);
+      tl.set(el, { opacity: 0 }, at + 0.35);
+    };
+    const hidden = { clipPath: "inset(0% 0% 100% 0%)", yPercent: 18 };
+
+    // Hook: on screen at frame 0, settling up; then one slow push until it leaves.
+    gsap.set(hook, { yPercent: 10 });
+    tl.to(hook, { yPercent: 0, duration: 0.6, ease: "power3.out" }, 0);
+    tl.fromTo(hook, { scale: 1 }, { scale: 1.03, duration: HOOK_END - 0.95, ease: "power1.inOut" }, 0.6);
+    leave(hook, HOOK_END - 0.35);
+
+    // Beats: staged reveals; a capture arrives from below the first time and later ones are wiped in from the right
+    // (the brand current) over the previous one; each pushes slowly while its beat lasts.
+    let cardIn = false;
+    els.forEach((e, i) => {
+      const end = e.start + beatLen;
+      gsap.set(e.text, hidden);
+      tl.to(e.text, reveal, e.start + 0.05);
+      leave(e.text, end - 0.35);
+      if (e.img) {
+        const z = Math.max(1, e.zoom ?? zoom);
+        if (e.focus) e.img.style.objectPosition = e.focus;
+        gsap.set(e.img, { objectViewBox: viewBox(z, e.focus) });
+        if (!cardIn) {
+          gsap.set(e.img, { clipPath: "inset(0% 0% 0% 0%)" });
+          gsap.set(card, { clipPath: "inset(100% 0% 0% 0%)", yPercent: 6 });
+          tl.to(card, { clipPath: "inset(0% 0% 0% 0%)", yPercent: 0, duration: 0.7, ease: "power3.out" }, e.start);
+          cardIn = true;
+        } else {
+          gsap.set(e.img, { clipPath: "inset(0% 0% 0% 100%)" });
+          tl.to(e.img, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "power2.inOut" }, e.start);
+        }
+        tl.to(e.img, { objectViewBox: viewBox(z * 1.06, e.focus), duration: beatLen, ease: "power1.inOut" }, e.start);
+      }
+      const next = els[i + 1];
+      if (cardIn && (!next || !next.img)) {
+        tl.to(card, { clipPath: "inset(0% 100% 0% 0%)", duration: 0.45, ease: "power2.inOut" }, end - 0.45);
+        cardIn = false;
+      }
+    });
+
+    if (proof) {
+      gsap.set(proof, hidden);
+      tl.to(proof, reveal, PROOF + 0.05);
+      tl.to(proof, { scale: 1.03, duration: CLOSE - PROOF - 0.9, ease: "power1.inOut" }, PROOF + 0.6);
+      leave(proof, CLOSE - 0.35);
+    }
+
+    // Captions hold their cue window; the switch is a cut (a fade would show half-legible text).
+    if (cues.length) {
+      gsap.set(plate, { opacity: 0 });
+      tl.set(plate, { opacity: 1 }, cues[0].start);
+      tl.set(plate, { opacity: 0 }, Math.max(...cues.map((c) => c.end)));
+    }
+    cueEls.forEach((p, i) => {
+      gsap.set(p, { opacity: 0 });
+      tl.set(p, { opacity: 1 }, cues[i].start);
+      tl.set(p, { opacity: 0 }, cues[i].end);
+    });
+
+    // Close: one moving edge wipes the story out to the left as the card is uncovered; at rest from CLOSE + 0.55.
+    gsap.set("#close", { clipPath: "inset(0% 0% 0% 100%)" });
+    gsap.set("#close .stack, #close .legal", { x: "6%" });
+    tl.to("#story", { clipPath: "inset(0% 100% 0% 0%)", x: "-4%", duration: 0.55, ease: "power2.inOut" }, CLOSE);
+    tl.to("#close", { clipPath: "inset(0% 0% 0% 0%)", duration: 0.55, ease: "power2.inOut" }, CLOSE);
+    tl.to("#close .stack, #close .legal", { x: 0, duration: 0.55, ease: "power2.inOut" }, CLOSE);
+    window.__timelines["main"] = tl;
+  }
+
+  const ready = [...document.fonts].map((f) => f.load().catch(() => null))
+    .concat([...card.querySelectorAll("img")].map((i) => i.decode().catch(() => null)));
+  Promise.all(ready).then(build);
+})();
+</script>
+</body>
+</html>

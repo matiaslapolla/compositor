@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Guide fixture</title>
+<style>
+  :root { --bg: #f6f7f9; --panel: #fff; --ink: #1d2230; --muted: #667085; --accent: #2f54eb; --line: #e3e6ec; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 1400px; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 28px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  header strong { margin-right: auto; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 8px 14px; cursor: pointer; transition: background .3s; }
+  #menu-button { background: var(--accent); color: #fff; border-color: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .6; } }
+  .menu { position: absolute; top: 56px; right: 28px; width: 220px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 30px -10px rgba(0,0,0,.25); padding: 6px; display: none; }
+  .menu.open { display: block; }
+  .menu button { display: block; width: 100%; text-align: left; border: 0; }
+  .menu button:hover { background: var(--bg); }
+  main { max-width: 720px; margin: 48px auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 28px; }
+  label { display: block; color: var(--muted); margin-bottom: 6px; }
+  input { font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+  input:disabled { background: var(--bg); }
+</style>
+</head>
+<body>
+  <header>
+    <strong>Acme Projects</strong>
+    <button id="menu-button" aria-haspopup="menu" aria-expanded="false">Projects</button>
+  </header>
+  <div class="menu" role="menu" id="menu">
+    <button data-item="rename" role="menuitem">Rename</button>
+    <button data-item="duplicate" role="menuitem">Duplicate</button>
+    <button data-item="archive" role="menuitem">Archive</button>
+  </div>
+  <main>
+    <label for="project-name">Project name</label>
+    <input id="project-name" value="" placeholder="Untitled project" disabled>
+  </main>
+  <script>
+    const btn = document.getElementById("menu-button"), menu = document.getElementById("menu"), input = document.getElementById("project-name");
+    btn.addEventListener("click", () => {
+      const open = menu.classList.toggle("open");
+      btn.setAttribute("aria-expanded", String(open));
+    });
+    menu.querySelector("[data-item=rename]").addEventListener("click", () => {
+      menu.classList.remove("open");
+      input.disabled = false;
+      input.focus();
+    });
+  </script>
+</body>
+</html>

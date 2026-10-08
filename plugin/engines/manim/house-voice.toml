@@ -1,0 +1,7 @@
+# The voice every episode uses. Written by `python -m explainer.voices` (key h).
+engine = "kokoro"
+voice = "em_alex"
+lang = "es"
+
+[params]
+speed = 1.0

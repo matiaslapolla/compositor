@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-brand: var(--font-instrument), "Instrument Sans", serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  --color-accent: var(--ui-accent);
+  --color-primary: var(--primary);
+}
+:root {
+  --radius: 0.5rem;
+  --background: #e9eaee;
+  --foreground: #14161c;
+  --card: #fbfbfd;
+  --primary: #263fb8;
+  --primary-foreground: #ffffff;
+  --muted: #f3f4f8;
+  --muted-foreground: #626878;
+  --ui-accent: #f3f4f8;
+  --destructive: #c33a2e;
+  --border: #d5d8e0;
+}
+.dark {
+  --background: #14161c;
+  --foreground: #e9eaee;
+  --card: #1b1e26;
+  --primary: #7e93f2;
+  --primary-foreground: #0d1024;
+  --muted-foreground: #9aa0b4;
+  --ui-accent: #232c4a;
+  --border: #2a2f3d;
+}

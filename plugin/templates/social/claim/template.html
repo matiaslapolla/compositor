@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{headline}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg); }
+  .scene { position: absolute; inset: 0; }
+  /* Grain, deterministic: an SVG noise tile at the brand's opacity, never a gradient wash. */
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .glow { position: absolute; width: 70%; aspect-ratio: 1; right: -20%; top: -25%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--color-accent) 18%, transparent), transparent 70%); }
+  .safe { display: grid; grid-template-rows: auto 1fr auto; align-items: start; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--space) * 4); }
+  .logo { display: flex; align-items: center; gap: calc(var(--space) * 3); height: calc(var(--w) * 0.05); }
+  .logo svg { height: 100%; width: auto; }
+  .logo .name { font-family: var(--font-display); font-weight: 600; letter-spacing: var(--tracking-display); font-size: calc(var(--w) * 0.03); }
+  .kicker { font-family: var(--font-mono, var(--font-body)); font-size: calc(var(--w) * 0.02); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+  .middle { align-self: center; display: grid; gap: calc(var(--w) * 0.035); justify-items: {{align}}; text-align: {{align}}; }
+  .rule { height: calc(var(--w) * 0.006); width: calc(var(--w) * 0.14); background: var(--color-accent); transform-origin: left center; border-radius: 1px; }
+  .block { width: calc(var(--w) * 0.09); aspect-ratio: 1; background: var(--color-accent); border-radius: var(--radius); }
+  .headline { margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.02; text-wrap: balance;
+    font-size: min(calc(var(--w) * 0.1), calc(var(--h) * 0.085)); max-width: 100%; }
+  .headline .w { display: inline-block; white-space: pre; }
+  .subline { margin: 0; max-width: 88%; font-size: min(calc(var(--w) * 0.034), calc(var(--h) * 0.03)); line-height: 1.35; color: var(--color-muted); }
+  .bottom { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--space) * 4); }
+  .cta { display: inline-block; font-family: var(--font-display); font-weight: 600; font-size: calc(var(--w) * 0.024); color: var(--color-accent-fg); background: var(--color-accent);
+    padding: calc(var(--w) * 0.014) calc(var(--w) * 0.03); border-radius: var(--radius-pill); }
+  .meta { font-family: var(--font-mono, var(--font-body)); font-size: calc(var(--w) * 0.019); letter-spacing: 0.06em; color: var(--color-muted); }
+  html[data-kind="still"] .glow { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1080" data-duration="6">
+  <div class="scene" id="scene">
+    <div class="glow" id="glow" data-layout-ignore></div>
+    <div class="safe">
+      <div class="top">
+        <div class="logo" id="logo">
+          {{#logo.markSvg}}{{{logo.markSvg}}}{{/logo.markSvg}}
+          {{^logo.markSvg}}<span class="name">{{brand.name}}</span>{{/logo.markSvg}}
+        </div>
+        {{#kicker}}<div class="kicker" id="kicker">{{kicker}}</div>{{/kicker}}
+      </div>
+      <div class="middle">
+        {{#accent}}<div class="{{accent}}" id="accent"></div>{{/accent}}
+        <h1 class="headline" id="headline">{{headline}}</h1>
+        {{#subline}}<p class="subline" id="subline">{{subline}}</p>{{/subline}}
+      </div>
+      <div class="bottom">
+        {{#cta}}<span class="cta" id="cta">{{cta}}</span>{{/cta}}{{^cta}}<span></span>{{/cta}}
+        <span class="meta" id="meta">{{brand.tagline|}}</span>
+      </div>
+    </div>
+    <div class="grain" data-layout-ignore></div>
+  </div>
+</div>
+<script>
+(function () {
+  const still = document.documentElement.dataset.kind === "still";
+  const h = document.getElementById("headline");
+  h.innerHTML = h.textContent.split(/(\s+)/).map((t) => (/^\s+$/.test(t) ? t : `<span class="w">${t}</span>`)).join("");
+  const words = [...h.querySelectorAll(".w")];
+  const accent = document.getElementById("accent");
+  const subline = document.getElementById("subline");
+  const cta = document.getElementById("cta");
+  const kicker = document.getElementById("kicker");
+  const tl = gsap.timeline({ paused: true });
+  if (!still) {
+    const D = {{duration}};
+    const enter = "power3.out", exit = "power3.in";
+    // Enter along the current (LEFT): everything arrives from the right, slightly.
+    gsap.set(["#logo", "#meta"], { opacity: 0, x: 24 });
+    if (accent) gsap.set(accent, accent.classList.contains("rule") ? { scaleX: 0 } : { opacity: 0, y: 20 });
+    gsap.set(words, { opacity: 0, y: "0.35em", x: 18 });
+    if (subline) gsap.set(subline, { opacity: 0, y: 16 });
+    if (cta) gsap.set(cta, { opacity: 0, y: 12 });
+    if (kicker) gsap.set(kicker, { opacity: 0, x: 24 });
+    tl.to("#logo", { opacity: 1, x: 0, duration: 0.6, ease: enter }, 0.1);
+    if (kicker) tl.to(kicker, { opacity: 1, x: 0, duration: 0.6, ease: enter }, 0.15);
+    if (accent) tl.to(accent, accent.classList.contains("rule") ? { scaleX: 1, duration: 0.7, ease: "power4.out" } : { opacity: 1, y: 0, duration: 0.6, ease: enter }, 0.25);
+    tl.to(words, { opacity: 1, y: 0, x: 0, duration: 0.7, ease: enter, stagger: Math.min(0.08, 0.5 / Math.max(words.length, 1)) }, 0.4);
+    // Staged reveal: the subline lands on its own beat, then the CTA.
+    if (subline) tl.to(subline, { opacity: 1, y: 0, duration: 0.6, ease: enter }, 1.5);
+    if (cta) tl.to(cta, { opacity: 1, y: 0, duration: 0.5, ease: enter }, 2.0);
+    tl.to("#meta", { opacity: 1, x: 0, duration: 0.5, ease: enter }, 2.1);
+    // Exit mirrors the entry (75% of its duration) and lands one frame before the loop point.
+    const X = D - 1.05;
+    if (cta) tl.to(cta, { opacity: 0, y: -10, duration: 0.35, ease: exit }, X);
+    if (subline) tl.to(subline, { opacity: 0, y: -12, duration: 0.4, ease: exit }, X + 0.05);
+    tl.to(words, { opacity: 0, y: "-0.3em", x: -18, duration: 0.5, ease: exit, stagger: Math.min(0.05, 0.3 / Math.max(words.length, 1)) }, X + 0.1);
+    if (accent) tl.to(accent, accent.classList.contains("rule") ? { scaleX: 0, duration: 0.45, ease: exit, transformOrigin: "right center" } : { opacity: 0, y: -14, duration: 0.4, ease: exit }, X + 0.3);
+    tl.to(["#logo", "#meta", kicker].filter(Boolean), { opacity: 0, x: -24, duration: 0.45, ease: exit }, X + 0.45);
+  }
+  window.__timelines["main"] = tl;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "ad/reels-ad-15s",
+  "description": "Vertical 15 s ad: a hook on screen from frame 0, two or three value beats (text plus optional product capture), a proof line and a static end card for the last 2 s. Captions from cues in the bottom of the safe box; every claim is on screen for mute viewing.",
+  "mode": "ad",
+  "kind": "motion",
+  "duration": 15,
+  "fps": 30,
+  "loop": "none",
+  "targets": ["reels-ad", "stories-ad", "tiktok-ad", "shorts-ad"],
+  "params": {
+    "headline": {"type": "string", "required": true, "maxWords": 7, "doc": "The hook: on screen from frame 0 to 2.6 s, inside the ad safe box."},
+    "beats": {"type": "array", "required": true, "doc": "Two or three value beats: [{ text, image?, zoom?, focus? }]. text ≤ 10 words; image is a capture under assets/ (build --assets); zoom and focus override imageZoom and imageFocus for that capture."},
+    "proof": {"type": "string", "maxWords": 10, "doc": "One proof line (a number, a result, who uses it). Optional: without it the beats take its time."},
+    "cta": {"type": "string", "required": true, "maxWords": 4, "doc": "The CTA on the end card (accent pill), static for the last 2 s."},
+    "url": {"type": "string", "maxChars": 32, "doc": "Short domain beside the CTA, optional."},
+    "legal": {"type": "string", "maxChars": 140, "doc": "Optional legal line on the end card."},
+    "captions": {"type": "array", "doc": "Optional caption cues [{ start, end, text }] in seconds, ≤ 2 lines of ≤ 32 characters each. Rendered above the platform UI band; cues are cut at the end card."},
+    "imageFocus": {"type": "string", "default": "0% 0%", "doc": "CSS object-position for every capture crop."},
+    "imageZoom": {"type": "number", "default": 1.3, "doc": "Crop zoom into the captures (1 = fitted by cover); each beat pushes 6% further."}
+  }
+}

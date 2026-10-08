@@ -1,0 +1,18 @@
+{
+  "name": "ad/carousel",
+  "description": "Five to seven same-ratio slides: a hook with a swipe cue, context and proof slides (text plus an optional capture that runs off the slide edge), and a last slide that is only the ask, the brand and the CTA. Content in the centre 80%; every slide carries its number.",
+  "mode": "ad",
+  "kind": "page",
+  "instances": "slides",
+  "fps": 30,
+  "loop": "none",
+  "targets": ["ig-feed", "linkedin-portrait", "linkedin-document"],
+  "params": {
+    "slides": { "type": "array", "required": true, "doc": "5-7 slides: [{ kicker?, headline, body?, image? }]. Slide 1 is the hook (headline ≤ 7 words); the last slide's headline is the ask above the CTA (its body and image are ignored)." },
+    "cta": { "type": "string", "required": true, "maxWords": 4, "doc": "The CTA pill on the last slide (the accent)." },
+    "url": { "type": "string", "maxChars": 32, "doc": "Short domain under the CTA, optional." },
+    "swipeLabel": { "type": "string", "default": "Swipe", "maxWords": 2, "doc": "Label of the swipe cue on slide 1, in the ad's language." },
+    "imageFocus": { "type": "string", "default": "0% 0%", "doc": "CSS object-position for capture crops." },
+    "imageZoom": { "type": "number", "default": 1.3, "doc": "Crop zoom into captures (1 = fitted by cover)." }
+  }
+}

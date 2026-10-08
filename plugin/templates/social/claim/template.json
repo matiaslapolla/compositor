@@ -1,0 +1,18 @@
+{
+  "name": "social/claim",
+  "description": "One claim, the brand mark, one accent rule. Still for feed and link images, a 6 s loop for square and vertical video.",
+  "mode": "social",
+  "kind": "both",
+  "duration": 6,
+  "fps": 30,
+  "loop": "seamless",
+  "targets": ["ig-feed", "ig-square", "x-image", "linkedin-image", "reels"],
+  "params": {
+    "headline": { "type": "string", "required": true, "maxWords": 7, "doc": "The claim. Seven words at most." },
+    "subline": { "type": "string", "maxWords": 16, "doc": "One supporting sentence, optional." },
+    "kicker": { "type": "string", "maxWords": 4, "doc": "Small label above the claim: a product name or a date." },
+    "cta": { "type": "string", "maxWords": 4, "doc": "Optional call to action, rendered as a pill." },
+    "accent": { "type": "string", "enum": ["rule", "block", "none"], "default": "rule", "doc": "The one accent element." },
+    "align": { "type": "string", "enum": ["start", "center"], "default": "start" }
+  }
+}

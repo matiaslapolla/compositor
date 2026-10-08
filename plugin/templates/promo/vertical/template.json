@@ -1,0 +1,22 @@
+{
+  "name": "promo/vertical",
+  "description": "The promo film at 9:16 with in-feed type sizes: same scenes, seams, reveals and captions as promo/landscape, stacked for the vertical safe box.",
+  "mode": "promo",
+  "kind": "motion",
+  "html": "../landscape/template.html",
+  "duration": 20,
+  "fps": 30,
+  "loop": "hold",
+  "canvas": "dark",
+  "targets": ["reels", "tiktok", "shorts", "stories"],
+  "params": {
+    "scenes": { "type": "array", "required": true, "doc": "See promo/landscape." },
+    "timeline": { "type": "object", "required": true, "doc": "timeline.json from scripts/promo/voiceover.mjs." },
+    "captions": { "type": "array", "required": true, "doc": "Caption cues [{ start, end, lines, words }]." },
+    "duration": { "type": "number", "required": true },
+    "captionStyle": { "type": "string", "enum": ["plain", "karaoke"], "default": "plain" },
+    "voSrc": { "type": "string" },
+    "ledger": { "type": "object" },
+    "language": { "type": "string", "default": "en" }
+  }
+}

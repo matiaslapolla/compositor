@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{slide.index}}/{{slide.count}} {{headline}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: var(--w); height: var(--h); }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg);
+    --gap: calc(var(--w) * 0.04); --r: calc(var(--radius) * 2);
+    /* Carousel safe: the centre 80% on every target, wider than any platform inset. */
+    --inset-x: max(0px, calc(var(--w) * 0.1 - var(--safe-left))); --inset-y: max(0px, calc(var(--h) * 0.1 - var(--safe-top))); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .frame { position: absolute; inset: var(--inset-y) var(--inset-x); display: grid; gap: var(--gap);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr); grid-template-areas: "bar" "kicker" "headline" "body" "shot"; }
+  .bar { grid-area: bar; display: flex; align-items: center; justify-content: space-between; }
+  .logo { width: calc(var(--w) * 0.05); min-width: 40px; }
+  /* A brand without a mark shows its name: the corner slot then sizes to the name. */
+  .logo:has(.name) { width: auto; }
+  .logo svg, .logo img { display: block; width: 100%; height: auto; }
+  .logo .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); white-space: nowrap; font-size: max(24px, calc(var(--w) * 0.03)); }
+  .chip { font-family: var(--font-mono, var(--font-body)); font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: var(--color-muted); line-height: 1;
+    font-size: max(24px, calc(var(--w) * 0.024)); padding: 0.55em 0.9em; border: max(1px, calc(var(--w) * 0.0012)) solid var(--color-border); border-radius: var(--radius-pill); }
+  .kicker { grid-area: kicker; margin: 0; font-family: var(--font-display); font-weight: 600; color: var(--color-muted); font-size: max(24px, calc(var(--w) * 0.032)); }
+  .headline { grid-area: headline; margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.04;
+    text-wrap: balance; font-size: calc(var(--w) * 0.08); }
+  .body { grid-area: body; margin: 0; max-width: 30ch; color: var(--color-muted); line-height: 1.38; text-wrap: pretty; font-size: max(32px, calc(var(--w) * 0.038)); }
+  .shot { grid-area: shot; min-height: 0; margin: calc(var(--gap) * 0.5) calc(-1 * (var(--inset-x) + var(--safe-right))) calc(-1 * (var(--inset-y) + var(--safe-bottom))) 0;
+    overflow: hidden; background: var(--color-surface); border: max(1px, calc(var(--w) * 0.0012)) solid var(--color-border); border-right: 0; border-bottom: 0; border-top-left-radius: var(--r); }
+  .shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: {{imageFocus}}; }
+
+  /* Text-only slides centre their copy; the hook carries the swipe cue; the last slide is only the ask. */
+  html:not(.has-image) .frame { grid-template-rows: auto 1fr auto auto auto 1.3fr; grid-template-areas: "bar" "." "kicker" "headline" "body" "."; }
+  html.is-first .frame { grid-template-rows: auto 1fr auto auto auto 1fr auto; grid-template-areas: "bar" "." "kicker" "headline" "body" "." "swipe"; }
+  .swipe { grid-area: swipe; display: none; align-items: center; justify-content: flex-end; gap: 0.6em; color: var(--color-fg); font-family: var(--font-display); font-weight: 600;
+    font-size: max(24px, calc(var(--w) * 0.032)); }
+  .swipe svg { width: 2.4em; height: 1em; }
+  html.is-first .swipe { display: flex; }
+  .ask { display: none; }
+  html.is-last .frame { grid-template-rows: auto 1fr auto 1fr; grid-template-areas: "bar" "." "ask" "."; }
+  html.is-last .kicker, html.is-last .headline, html.is-last .body, html.is-last .shot { display: none; }
+  html.is-last .ask { grid-area: ask; display: grid; justify-items: center; gap: calc(var(--gap) * 1.4); text-align: center; }
+  .lockup { display: flex; align-items: center; gap: calc(var(--w) * 0.025); }
+  .lockup .mark { display: block; height: calc(var(--w) * 0.1); }
+  .lockup .mark-bg { aspect-ratio: 1; background: center / contain no-repeat; }
+  .lockup .mark svg { display: block; height: 100%; width: auto; }
+  .lockup .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1; white-space: nowrap; font-size: calc(var(--w) * 0.08); }
+  .ask-line { margin: 0; max-width: 16ch; font-family: var(--font-display); font-weight: 650; letter-spacing: var(--tracking-display); line-height: 1.1; text-wrap: balance;
+    font-size: calc(var(--w) * 0.062); }
+  .cta { display: inline-flex; align-items: center; gap: 0.45em; font-family: var(--font-display); font-weight: 600; line-height: 1; white-space: nowrap;
+    font-size: calc(var(--w) * 0.048); color: var(--color-accent-fg); background: var(--color-accent); padding: 0.62em 1.1em; border-radius: var(--radius-pill); }
+  .cta svg { width: 0.9em; height: 0.9em; }
+  .url { color: var(--color-muted); font-size: max(24px, calc(var(--w) * 0.034)); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1350" data-duration="1" data-index="{{slide.index}}" data-count="{{slide.count}}">
+  <div class="grain" data-layout-ignore></div>
+  <div class="safe">
+    <div class="frame" id="frame">
+      <div class="bar">
+        <div class="logo">
+          {{#logo.markSvg}}{{{logo.markSvg}}}{{/logo.markSvg}}
+          {{^logo.markSvg}}{{#logo.mark}}<img src="{{logo.mark}}" alt="{{brand.name}}">{{/logo.mark}}{{^logo.mark}}<span class="name">{{brand.name}}</span>{{/logo.mark}}{{/logo.markSvg}}
+        </div>
+        <span class="chip" id="chip">{{slide.index}} / {{slide.count}}</span>
+      </div>
+      {{#kicker}}<p class="kicker" id="kicker">{{kicker}}</p>{{/kicker}}
+      <h1 class="headline" id="headline">{{headline}}</h1>
+      {{#body}}<p class="body" id="body">{{body}}</p>{{/body}}
+      {{#image}}<figure class="shot" id="shot" data-zoom="{{imageZoom}}" data-focus="{{imageFocus}}"><img src="{{image}}" alt=""></figure>{{/image}}
+      <div class="swipe" id="swipe">{{swipeLabel}}<svg viewBox="0 0 48 20" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10h43M37 3l8 7-8 7"/></svg></div>
+      <div class="ask" id="ask">
+        <div class="lockup">
+          {{#logo.markSvg}}<span class="mark">{{{logo.markSvg}}}</span>{{/logo.markSvg}}
+          {{^logo.markSvg}}{{#logo.mark}}<span class="mark mark-bg" style="background-image: url('{{logo.mark}}')"></span>{{/logo.mark}}{{/logo.markSvg}}
+          <span class="name">{{brand.name}}</span>
+        </div>
+        <p class="ask-line">{{headline}}</p>
+        <span class="cta" id="cta">{{cta}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        {{#url}}<span class="url">{{url}}</span>{{/url}}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const html = document.documentElement;
+  const root = document.getElementById("root");
+  const index = Number(root.dataset.index), count = Number(root.dataset.count);
+  const first = index === 1, last = index === count && count > 1;
+  html.classList.toggle("is-first", first);
+  html.classList.toggle("is-last", last);
+  const shot = document.getElementById("shot");
+  // The hook and the ask never carry a capture: one job per slide.
+  if (shot && (first || last)) shot.remove();
+  html.classList.toggle("has-image", Boolean(shot && shot.isConnected));
+  // The ask, the swipe cue and the lockup exist only where they are shown.
+  if (!last) document.getElementById("ask").remove();
+  if (!first) document.getElementById("swipe").remove();
+  if (shot && shot.isConnected) {
+    const z = Math.max(1, Number(shot.dataset.zoom) || 1), c = (1 - 1 / z) * 100;
+    const KEY = { left: 0, top: 0, center: 50, right: 100, bottom: 100 };
+    const [fx, fy] = (shot.dataset.focus || "0% 0%").trim().split(/\s+/).concat("50%").slice(0, 2).map((t) => (t in KEY ? KEY[t] : parseFloat(t) || 0) / 100);
+    shot.querySelector("img").style.objectViewBox = `inset(${c * fy}% ${c * (1 - fx)}% ${c * (1 - fy)}% ${c * fx}%)`;
+  }
+  const headline = document.getElementById("headline");
+  const lines = (el) => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()].filter((b) => b.width > 1); };
+  // Headline size: the largest that keeps it to its row budget inside 92% of the frame width.
+  function fit() {
+    if (last) return;
+    const W = root.clientWidth, column = headline.parentElement.clientWidth;
+    const [max, min, rows] = first ? [W * 0.14, W * 0.08, 4] : shot && shot.isConnected ? [W * 0.085, W * 0.06, 3] : [W * 0.105, W * 0.07, 4];
+    for (let size = max; size >= min; size *= 0.97) {
+      headline.style.fontSize = `${size}px`;
+      const ls = lines(headline);
+      if (new Set(ls.map((b) => Math.round(b.top))).size <= rows && Math.max(...ls.map((b) => b.width)) <= column * 0.92) return;
+    }
+  }
+  // A page is a still: the fitted HTML is the frame and the timeline stays empty.
+  Promise.all([...document.fonts].map((f) => f.load().catch(() => null))).then(() => {
+    fit();
+    window.__timelines["main"] = gsap.timeline({ paused: true });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "frame": [14.22, 8],
+  "margin": 0.3,
+  "findings": [
+    { "mobject": "Circle", "issue": "offscreen", "bbox": [4.5, -2, 8.5, 2], "beat": 1, "time": 1.0 },
+    { "mobject": "Text('A')", "issue": "overlap", "bbox": [-1.4, -0.3, 1.4, 0.3], "with": "Text('B')", "beat": 2, "time": 2.0 }
+  ]
+}

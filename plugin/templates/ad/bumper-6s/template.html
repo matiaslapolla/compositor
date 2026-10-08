@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand.name}} — {{headline}}</title>
+<script src="gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: var(--w); height: var(--h); }
+  body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--color-bg);
+    --m: min(var(--w), var(--h)); --gap: calc(var(--m) * 0.045); --r: calc(var(--radius) * 2); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity, 0.06); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .scene { position: absolute; inset: 0; }
+
+  /* Shot: the one idea. Headline and corner mark in the safe box; the capture starts inside it and runs off the
+     right and bottom frame edges (under a vertical ad's UI band too: imagery there is covered, never copy). */
+  #shot .safe { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "logo" "." "copy" "."; grid-template-rows: auto 1fr auto 1.2fr; }
+  html.has-image #shot .safe { grid-template-areas: "logo" "copy" "capture"; grid-template-rows: auto auto minmax(0, 1fr); }
+  html[data-orientation="landscape"].has-image #shot .safe { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: calc(var(--gap) * 1.2);
+    grid-template-areas: "logo capture" "copy capture" ". capture"; grid-template-rows: auto 1fr auto; }
+  .logo { grid-area: logo; width: calc(var(--w) * 0.05); min-width: 40px; }
+  /* A brand without a mark shows its name: the corner slot then sizes to the name. */
+  .logo:has(.name) { width: auto; }
+  .logo svg, .logo img { display: block; width: 100%; height: auto; }
+  .logo .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); white-space: nowrap; font-size: max(24px, calc(var(--m) * 0.032)); }
+  .copy { grid-area: copy; align-self: center; }
+  .headline { margin: 0; max-width: 92%; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.02;
+    text-wrap: balance; font-size: calc(var(--m) * 0.13); transform-origin: left center; }
+  html.has-image .headline { font-size: calc(var(--m) * 0.12); max-width: 100%; }
+  html[data-orientation="landscape"].has-image .headline { font-size: calc(var(--m) * 0.125); }
+  .capture { grid-area: capture; min-height: 0; overflow: hidden; background: var(--color-surface);
+    margin: calc(var(--gap) * 0.4) calc(-1 * var(--safe-right)) calc(-1 * var(--safe-bottom)) 0;
+    border: max(1px, calc(var(--m) * 0.0012)) solid var(--color-border); border-right: 0; border-bottom: 0; border-top-left-radius: var(--r); }
+  html[data-orientation="landscape"] .capture { margin-top: 0; }
+  .capture img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: {{imageFocus}}; }
+
+  /* Close: static end card, CTA + brand. */
+  #close .safe { display: grid; grid-template-rows: 1fr auto; justify-items: center; }
+  .stack { align-self: center; display: grid; justify-items: center; gap: calc(var(--m) * 0.06); text-align: center; }
+  .lockup { display: flex; align-items: center; gap: calc(var(--m) * 0.03); }
+  .lockup .mark { display: block; height: calc(var(--m) * 0.12); }
+  /* A raster mark is a background here: the corner logo already uses the one <img> of that file. */
+  .lockup .mark-bg { aspect-ratio: 1; background: center / contain no-repeat; }
+  .lockup .mark svg, .lockup .mark img { display: block; height: 100%; width: auto; }
+  .lockup .name { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1; white-space: nowrap; font-size: calc(var(--m) * 0.1); }
+  .action { display: flex; align-items: center; gap: calc(var(--m) * 0.035); }
+  .cta { display: inline-flex; align-items: center; gap: 0.45em; font-family: var(--font-display); font-weight: 600; line-height: 1; white-space: nowrap;
+    font-size: max(24px, calc(var(--m) * 0.05)); color: var(--color-accent-fg); background: var(--color-accent); padding: 0.62em 1.1em; border-radius: var(--radius-pill); }
+  .cta svg { width: 0.9em; height: 0.9em; }
+  .url { color: var(--color-muted); white-space: nowrap; font-size: max(24px, calc(var(--m) * 0.034)); }
+  .legal { margin: 0; max-width: 70ch; color: var(--color-muted); text-align: center; line-height: 1.35; text-wrap: balance; font-size: max(24px, calc(var(--m) * 0.024)); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="6">
+  <div class="grain" data-layout-ignore></div>
+  <div class="scene" id="shot">
+    <div class="safe">
+      <div class="logo" id="logo">
+        {{#logo.markSvg}}{{{logo.markSvg}}}{{/logo.markSvg}}
+        {{^logo.markSvg}}{{#logo.mark}}<img src="{{logo.mark}}" alt="{{brand.name}}">{{/logo.mark}}{{^logo.mark}}<span class="name">{{brand.name}}</span>{{/logo.mark}}{{/logo.markSvg}}
+      </div>
+      <div class="copy"><h1 class="headline" id="headline">{{headline}}</h1></div>
+      {{#image}}<figure class="capture" id="capture" data-zoom="{{imageZoom}}" data-focus="{{imageFocus}}"><img id="capture-img" src="{{image}}" alt=""></figure>{{/image}}
+    </div>
+  </div>
+  <div class="scene" id="close">
+    <div class="safe">
+      <div class="stack">
+        <div class="lockup" id="lockup">
+          {{#logo.markSvg}}<span class="mark">{{{logo.markSvg}}}</span>{{/logo.markSvg}}
+          {{^logo.markSvg}}{{#logo.mark}}<span class="mark mark-bg" style="background-image: url('{{logo.mark}}')"></span>{{/logo.mark}}{{/logo.markSvg}}
+          <span class="name">{{brand.name}}</span>
+        </div>
+        <div class="action" id="action">
+          <span class="cta" id="cta">{{cta}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          {{#url}}<span class="url">{{url}}</span>{{/url}}
+        </div>
+      </div>
+      {{#legal}}<p class="legal">{{legal}}</p>{{/legal}}
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const html = document.documentElement;
+  const root = document.getElementById("root");
+  const orientation = getComputedStyle(root).getPropertyValue("--orientation").trim() || "square";
+  const capture = document.getElementById("capture");
+  html.dataset.orientation = orientation;
+  html.classList.toggle("has-image", Boolean(capture));
+  // The capture crop is an object-view-box inset: zooming it (and the push) never grows the image box.
+  const viewBox = (z) => {
+    if (!capture) return null;
+    const c = (1 - 1 / z) * 100;
+    const KEY = { left: 0, top: 0, center: 50, right: 100, bottom: 100 };
+    const [fx, fy] = (capture.dataset.focus || "0% 0%").trim().split(/\s+/).concat("50%").slice(0, 2).map((t) => (t in KEY ? KEY[t] : parseFloat(t) || 0) / 100);
+    return `inset(${(c * fy).toFixed(3)}% ${(c * (1 - fx)).toFixed(3)}% ${(c * (1 - fy)).toFixed(3)}% ${(c * fx).toFixed(3)}%)`;
+  };
+  const zoom = capture ? (orientation === "landscape" ? 1 : Math.max(1, Number(capture.dataset.zoom) || 1)) : 1;
+
+  const headline = document.getElementById("headline");
+  const tl = gsap.timeline({ paused: true });
+  // 0.0 s  frame 0 already holds the mark and the capture (or the headline): never an empty or flat start.
+  // 0.0-0.7 the capture settles up; the headline is uncovered from 0.15 s (clip, no fade).
+  // 0.7-3.3 one slow push on the hero element: the only camera move of the shot.
+  // 3.0-3.35 the headline exits upward; 3.35-3.95 a right-to-left wipe hands over to the end card (the brand current); nothing leaves the frame.
+  // 3.95-6.0 the end card holds still.
+  const img = document.getElementById("capture-img");
+  gsap.set("#close", { clipPath: "inset(0% 0% 0% 100%)" });
+  gsap.set("#close .stack, #close .legal", { x: "6%" });
+  if (capture) gsap.set(capture, { yPercent: 8 });
+  if (img) gsap.set(img, { objectViewBox: viewBox(zoom) });
+  gsap.set(headline, { clipPath: "inset(0% 0% 100% 0%)", yPercent: 18 });
+  if (capture) tl.to(capture, { yPercent: 0, duration: 0.7, ease: "power3.out" }, 0);
+  tl.to(headline, { clipPath: "inset(0% 0% 0% 0%)", yPercent: 0, duration: 0.6, ease: "power3.out" }, capture ? 0.15 : 0);
+  if (img) tl.to(img, { objectViewBox: viewBox(zoom * 1.08), duration: 2.6, ease: "power1.inOut" }, 0.7);
+  else tl.to(headline, { scale: 1.035, duration: 2.6, ease: "power1.inOut" }, 0.7);
+  // The headline leaves first along its entry vector (up, under its clip), so no two text blocks share the frame at the cut.
+  tl.to(headline, { clipPath: "inset(0% 0% 100% 0%)", yPercent: -14, duration: 0.35, ease: "power3.in" }, 3.0);
+  tl.set(headline, { opacity: 0 }, 3.35);
+  // One moving edge carries the cut: the shot is wiped from the right while the card is uncovered behind the same edge.
+  tl.to("#shot", { clipPath: "inset(0% 100% 0% 0%)", x: "-4%", duration: 0.6, ease: "power2.inOut" }, 3.35);
+  tl.to("#close", { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "power2.inOut" }, 3.35);
+  tl.to("#close .stack, #close .legal", { x: 0, duration: 0.6, ease: "power2.inOut" }, 3.35);
+  window.__timelines["main"] = tl;
+})();
+</script>
+</body>
+</html>

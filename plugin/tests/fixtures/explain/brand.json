@@ -1,0 +1,23 @@
+{
+  "identity": { "name": "Explain Fixture" },
+  "color": {
+    "video": { "canvasDefault": "dark", "nearBlack": "#16181c" },
+    "roles": {
+      "dark": {
+        "bg": { "hex": "#101010" }, "fg": { "hex": "#ecebe8" }, "muted": { "hex": "#a7abb2" },
+        "border": { "hex": "#3a424f" }, "accent": { "hex": "#5f92ea" }, "warning": { "hex": "#e69112" },
+        "error": { "hex": "#e0685a" }, "success": { "hex": "#4bbd77" }
+      },
+      "light": {
+        "bg": { "hex": "#f7f7f5" }, "fg": { "hex": "#1c1a19" }, "muted": { "hex": "#5e564f" },
+        "border": { "hex": "#c9c2b7" }, "accent": { "hex": "#1f4fb8" }, "warning": { "hex": "#b36b00" },
+        "error": { "hex": "#b3261e" }, "success": { "hex": "#1b7a43" }
+      }
+    }
+  },
+  "type": {
+    "display": { "family": "Fixture Sans", "files": ["fonts/Fixture-400.ttf", "fonts/Missing-700.ttf"] },
+    "body": { "family": "Fixture Sans", "files": ["fonts/Fixture-400.ttf"] },
+    "mono": { "family": "Fixture Mono", "files": [] }
+  }
+}

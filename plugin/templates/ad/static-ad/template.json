@@ -1,0 +1,18 @@
+{
+  "name": "ad/static-ad",
+  "description": "One-message static ad: a headline or a product capture as the single focal element, an accent CTA pill, the brand mark in the top-left corner. Reflows for landscape, square and portrait display and feed slots.",
+  "mode": "ad",
+  "kind": "still",
+  "fps": 30,
+  "loop": "none",
+  "targets": ["gda-landscape", "gda-square", "gda-portrait", "ig-feed", "ig-square", "linkedin-image", "x-image"],
+  "params": {
+    "headline": {"type": "string", "required": true, "maxWords": 7, "doc": "The one message. Seven words at most, two to five is best."},
+    "subline": {"type": "string", "maxWords": 14, "doc": "One supporting sentence, optional."},
+    "cta": {"type": "string", "required": true, "maxWords": 4, "doc": "The call to action, rendered as the accent pill (the 10%)."},
+    "image": {"type": "string", "doc": "Product capture under assets/ (pass the file with build --assets). When set it is the focal visual; without it the headline is."},
+    "imageFocus": {"type": "string", "default": "0% 0%", "doc": "CSS object-position for the capture crop; captures read from the top-left by default."},
+    "imageZoom": {"type": "number", "default": 1.3, "doc": "Crop zoom into the capture in portrait and square slots (1 = the capture fitted by cover); 1.2-1.6 keeps a capture's type legible at feed size. Landscape slots ignore it: their column already crops."},
+    "url": {"type": "string", "maxChars": 32, "doc": "Short domain shown beside the CTA, optional."}
+  }
+}

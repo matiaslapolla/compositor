@@ -1,0 +1,11 @@
+{
+  "title": "Fixture promo",
+  "language": "es",
+  "voice": "ef_dora",
+  "scenes": [
+    { "id": "title", "kind": "title", "headline": "¿La IA *recomienda* tu negocio?", "narration": "¿La inteligencia artificial recomienda tu negocio?" },
+    { "id": "claim", "kind": "claim", "headline": "Estar primero en Google ya no *alcanza*.", "narration": "Estar primero en Google ya no alcanza.", "holdS": 0.5 },
+    { "id": "stat", "kind": "stat", "stat": "88%", "label": "de los negocios no aparece.", "narration": "El 88% de los negocios no aparece." },
+    { "id": "end", "kind": "end", "headline": "Diagnóstico gratis.", "label": "example.com", "caption": "Diagnóstico gratis en example.com", "narration": "Pedí tu diagnóstico gratis." }
+  ]
+}
